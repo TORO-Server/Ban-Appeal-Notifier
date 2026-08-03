@@ -1,0 +1,20 @@
+{
+  "name": "ban-appeal-notifier",
+  "version": "1.0.0",
+  "description": "Ban Appeal Notifier with Google Apps Script, TypeScript, and clasp",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "npx tsx scripts/build-config.ts && tsc",
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "open": "clasp open"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.4.2",
+    "@types/google-apps-script": "^1.0.83",
+    "@types/node": "^26.1.2",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.23.5",
+    "typescript": "^5.3.3"
+  }
+}
