@@ -25,9 +25,9 @@ function getForms(e: BanAppealNotifier.FormSubmitEvent): void {
     const embedBuilder: BanAppealNotifier.IEmbedBuilder = new BanAppealNotifier.DiscordEmbedBuilder(config);
     const notifier: BanAppealNotifier.INotifier = new BanAppealNotifier.DiscordWebhookClient(config);
 
-    const embed = embedBuilder.build(e.response);
+    const embeds = embedBuilder.buildEmbeds(e.response);
     const payload: BanAppealNotifier.DiscordWebhookPayload = {
-      embeds: [embed],
+      embeds,
     };
 
     console.log("[BanAppealNotifier] Discord 送信データ構築完了:", JSON.stringify(payload));

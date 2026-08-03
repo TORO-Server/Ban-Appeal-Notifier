@@ -64,6 +64,11 @@ namespace BanAppealNotifier {
    */
   export interface IEmbedBuilder {
     /**
+     * FormResponse から Discord Embed の配列を生成する (25フィールド毎に分割)
+     */
+    buildEmbeds(response: GoogleAppsScript.Forms.FormResponse): DiscordEmbed[];
+
+    /**
      * FormResponse から Discord Embed を生成する
      */
     build(response: GoogleAppsScript.Forms.FormResponse): DiscordEmbed;
