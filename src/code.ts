@@ -8,15 +8,34 @@
 
 /**
  * Google フォーム送信イベントを受け取るエントリーポイント関数
- * @param e フォーム送信イベントオブジェクト
+ * @param e フォーム送信イベントオブジェクト（手動実行時や取得不可時はフォールバック）
  */
-function getForms(e: BanAppealNotifier.FormSubmitEvent): void {
+function getForms(e?: BanAppealNotifier.FormSubmitEvent | any): void {
   const queueService: BanAppealNotifier.IQueueService = new BanAppealNotifier.QueueService();
   const triggerManager: BanAppealNotifier.ITriggerManager = new BanAppealNotifier.TriggerManager();
 
   try {
-    if (!e || !e.response) {
-      throw new Error("有効な FormSubmitEvent オブジェクトが渡されませんでした。");
+    let response: GoogleAppsScript.Forms.FormResponse | null = null;
+
+    if (e && e.response) {
+      response = e.response;
+    } else {
+      console.warn("[BanAppealNotifier] イベントオブジェクト e.response が受け取れませんでした。アクティブフォームの最新回答からフォールバック取得を試みます。");
+      try {
+        const form = FormApp.getActiveForm();
+        if (form) {
+          const responses = form.getResponses();
+          if (responses.length > 0) {
+            response = responses[responses.length - 1];
+          }
+        }
+      } catch (fallbackError) {
+        console.warn("[BanAppealNotifier] フォールバック回答取得中に例外が発生しました:", fallbackError);
+      }
+    }
+
+    if (!response) {
+      throw new Error("有効な FormResponse オブジェクトを取得できませんでした。フォーム送信トリガーの設定、またはフォームの回答データの存在を確認してください。");
     }
 
     const configService: BanAppealNotifier.IConfigService = new BanAppealNotifier.ConfigService();
@@ -25,7 +44,7 @@ function getForms(e: BanAppealNotifier.FormSubmitEvent): void {
     const embedBuilder: BanAppealNotifier.IEmbedBuilder = new BanAppealNotifier.DiscordEmbedBuilder(config);
     const notifier: BanAppealNotifier.INotifier = new BanAppealNotifier.DiscordWebhookClient(config);
 
-    const embeds = embedBuilder.buildEmbeds(e.response);
+    const embeds = embedBuilder.buildEmbeds(response);
     const payload: BanAppealNotifier.DiscordWebhookPayload = {
       embeds,
     };

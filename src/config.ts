@@ -11,7 +11,7 @@ namespace BanAppealNotifier {
      * アプリケーション設定を取得する
      */
     public getConfig(): AppConfig {
-      const defaultEnv = ENV_CONFIG;
+      const defaultEnv = BanAppealNotifier.getEnvConfig();
 
       try {
         const props = PropertiesService.getScriptProperties();
