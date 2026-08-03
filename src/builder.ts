@@ -5,7 +5,11 @@ namespace BanAppealNotifier {
    * フォームの回答内容から Discord Embed を構築するビルダー
    */
   export class DiscordEmbedBuilder implements IEmbedBuilder {
-    constructor(private readonly config: AppConfig) {}
+    private declare config: AppConfig;
+
+    constructor(config: AppConfig) {
+      this.config = config;
+    }
 
     /**
      * Google フォームの FormResponse を受け取り、DiscordEmbed を構築する

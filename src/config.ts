@@ -21,14 +21,31 @@ namespace BanAppealNotifier {
         const rawColor = props.getProperty("EMBED_COLOR");
         const embedColor = rawColor ? parseInt(rawColor, 10) : defaultEnv.embedColor;
 
+        const rawMaxExec = props.getProperty("MAX_EXECUTION_TIME_MS");
+        const maxExecutionTimeMs = rawMaxExec ? parseInt(rawMaxExec, 10) : (defaultEnv.maxExecutionTimeMs || 300000);
+
+        const rawInitBackoff = props.getProperty("INITIAL_BACKOFF_MS");
+        const initialBackoffMs = rawInitBackoff ? parseInt(rawInitBackoff, 10) : (defaultEnv.initialBackoffMs || 1000);
+
+        const rawMaxBackoff = props.getProperty("MAX_BACKOFF_MS");
+        const maxBackoffMs = rawMaxBackoff ? parseInt(rawMaxBackoff, 10) : (defaultEnv.maxBackoffMs || 32000);
+
         return {
           webhookUrl,
           noneText,
           embedColor: isNaN(embedColor) ? defaultEnv.embedColor : embedColor,
+          maxExecutionTimeMs: isNaN(maxExecutionTimeMs) ? 300000 : maxExecutionTimeMs,
+          initialBackoffMs: isNaN(initialBackoffMs) ? 1000 : initialBackoffMs,
+          maxBackoffMs: isNaN(maxBackoffMs) ? 32000 : maxBackoffMs,
         };
       } catch (error) {
         console.warn("PropertiesService からの設定読み込み時に警告が発生しました。デフォルト設定を使用します:", error);
-        return defaultEnv;
+        return {
+          ...defaultEnv,
+          maxExecutionTimeMs: defaultEnv.maxExecutionTimeMs || 300000,
+          initialBackoffMs: defaultEnv.initialBackoffMs || 1000,
+          maxBackoffMs: defaultEnv.maxBackoffMs || 32000,
+        };
       }
     }
   }

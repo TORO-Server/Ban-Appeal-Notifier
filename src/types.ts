@@ -37,6 +37,9 @@ namespace BanAppealNotifier {
     readonly webhookUrl: string;
     readonly noneText: string;
     readonly embedColor: number;
+    readonly maxExecutionTimeMs?: number;
+    readonly initialBackoffMs?: number;
+    readonly maxBackoffMs?: number;
   }
 
   /**
@@ -74,5 +77,33 @@ namespace BanAppealNotifier {
      * Discord Webhook へペイロードを送信する
      */
     send(payload: DiscordWebhookPayload): void;
+  }
+
+  /**
+   * 一時保存する未送信通知アイテム
+   */
+  export interface PendingItem {
+    readonly id: string;
+    readonly payload: DiscordWebhookPayload;
+    readonly createdAt: number;
+    attempts: number;
+  }
+
+  /**
+   * 未送信通知キューの永続化管理サービス
+   */
+  export interface IQueueService {
+    enqueue(payload: DiscordWebhookPayload): PendingItem;
+    peekAll(): PendingItem[];
+    remove(id: string): void;
+    clear(): void;
+  }
+
+  /**
+   * GAS 動的トリガー（タイマー）管理サービス
+   */
+  export interface ITriggerManager {
+    ensureTimerTrigger(functionName: string, delayMinutes?: number): void;
+    removeTimerTriggers(functionName: string): void;
   }
 }
