@@ -1,20 +1,14 @@
 # Ban Appeal Notifier
 
-Google フォームで送信された異議申立て（Ban Appeal）等の回答結果を、Google Apps Script (GAS) を介して Discord Webhook へ即座に通知する自動化ツールです。
-
-プロジェクト内のすべてのスクリプト（ビルドツール含む）は TypeScript で記述されており、SOLID原則およびクリーンアーキテクチャに基づいたエレガントなクラス設計を採用しています。
+Google フォームで送信された異議申立て（Ban Appeal）の回答結果を、Google Apps Script (GAS) を介して Discord Webhook へ即座に通知する自動化ツールです。
 
 ---
 
-## 概要と特徴
+## 主な機能
 
-- **完全 TypeScript 開発**: フロントエンド（GAS）からビルドスクリプトまで全コードを TypeScript 化。
-- **オブジェクト指向・SOLID原則の徹底**:
-  - `IConfigService`: 設定管理の抽象化（`.env` と `PropertiesService` の統合フォールバック）
-  - `IEmbedBuilder`: Google フォーム回答から Discord Embed 構造体への高凝集な変換
-  - `INotifier`: HTTP リクエストとエラーログ記録・レスポンス検証のカプセル化
-- **環境変数の柔軟な管理**: `.env` ファイルによる静的埋め込みと、GAS の `PropertiesService` による動的設定の双方に対応。
-- **Google Apps Script & Clasp 連携**: `clasp` を用いた型安全な開発およびデプロイワークフロー。
+- **Discord 自動通知**: フォーム送信時に指定した Discord チャンネルへ Embed 形式で即時通知。
+- **TypeScript 対応**: 型安全な開発と `clasp` を用いた自動デプロイに対応。
+- **環境変数管理**: `.env` による設定管理に対応。
 
 ---
 
@@ -22,45 +16,31 @@ Google フォームで送信された異議申立て（Ban Appeal）等の回答
 
 ```text
 Ban-Appeal-Notifier/
-├── .env                      # 開発環境用設定ファイル
 ├── .env.example              # 環境変数テンプレート
 ├── .clasp.json               # clasp 設定ファイル
-├── package.json              # 依存関係およびスクリプト定義
-├── tsconfig.json             # TypeScript コンパイラ設定
-├── README.md                 # プロジェクト取扱説明書
-├── scripts/
-│   └── build-config.ts       # .env から src/env.ts を自動生成する TypeScript スクリプト
+├── package.json              # 依存関係定義
+├── tsconfig.json             # TypeScript 設定
+├── ARCHITECTURE.md           # アーキテクチャ仕様書
 └── src/
-    ├── appsscript.json       # GAS マニフェストファイル
-    ├── types.ts              # インターフェースおよび型定義
-    ├── env.ts                # (自動生成) 環境定数ファイル
-    ├── config.ts             # ConfigService (設定読み込み実装)
-    ├── builder.ts            # DiscordEmbedBuilder (Embed 構築実装)
-    ├── notifier.ts           # DiscordWebhookClient (Webhook 送信実装)
-    └── code.ts               # GAS エントリーポイント (getForms 関数)
+    ├── appsscript.json       # GAS マニフェスト
+    ├── types.ts              # 型定義
+    ├── config.ts             # 設定読み込み処理
+    ├── builder.ts            # Discord Embed 構築処理
+    ├── notifier.ts           # Discord 送信処理
+    └── code.ts               # GAS エントリーポイント (getForms)
 ```
-
----
-
-## 事前準備
-
-以下のツールがインストールされていることを確認してください。
-
-- **Node.js** (v18 以上推奨)
-- **npm**
-- Google アカウントおよび Discord Webhook URL
 
 ---
 
 ## セットアップ手順
 
-### 1. リポジトリの依存関係インストール
+### 1. 依存関係のインストール
 
 ```bash
 npm install
 ```
 
-### 2. 環境変数 (.env) の作成と設定
+### 2. 環境変数の設定
 
 `.env.example` をコピーして `.env` を作成し、必要な設定値を入力します。
 
@@ -68,33 +48,22 @@ npm install
 cp .env.example .env
 ```
 
-`.env` 内の設定項目:
-
-```env
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
-NONE_TEXT=なし
-EMBED_COLOR=8008641
-```
-
-- `DISCORD_WEBHOOK_URL`: 送信先の Discord Webhook URL
-- `NONE_TEXT`: フォームの未回答項目に対する代替文字列 (デフォルト: "なし")
-- `EMBED_COLOR`: Embed の左端ストライプカラー (10進数カラーコード)
+`.env` の設定項目:
+- `DISCORD_WEBHOOK_URL`: Discord Webhook URL
+- `NONE_TEXT`: 未回答項目の代替テキスト (例: "なし")
+- `EMBED_COLOR`: Embed のカラーコード (10進数)
 
 ---
 
 ## ビルドおよびデプロイ
 
-### 1. プロジェクトのビルド
-
-TypeScript ビルドスクリプトを実行し、`.env` から `src/env.ts` を生成した上で `tsc` 型チェックを行います。
+### 1. ビルド
 
 ```bash
 npm run build
 ```
 
-### 2. Google Apps Script へのプッシュ
-
-`clasp` を利用して GAS プロジェクトへコードを送信します。
+### 2. GAS へのデプロイ
 
 ```bash
 # 必要に応じて clasp へログイン
@@ -108,46 +77,16 @@ npm run push
 
 ## Google フォーム（GAS）側の設定
 
-1. 対象の Google フォームに紐付く Apps Script エディタを開くか、プッシュ先の GAS プロジェクトを開きます。
-2. 左メニューの **トリガー (時計アイコン)** を選択します。
-3. **[トリガーを追加]** ボタンをクリックし、以下の通り設定します:
-   - **実行する関数を選択**: `getForms`
-   - **実行するデプロイを選択**: `Head`
-   - **イベントの源泉を選択**: `フォームから`
-   - **イベントの種類を選択**: `フォーム送信時`
-4. 設定を保存し、アクセス権限を承認します。
+1. 対象の Google フォームに紐付く Apps Script エディタを開きます。
+2. 左メニューの **トリガー (時計アイコン)** > **[トリガーを追加]** を選択します。
+3. 以下の通り設定し保存します:
+   - **実行する関数**: `getForms`
+   - **実行するデプロイ**: `Head`
+   - **イベントの源泉**: `フォームから`
+   - **イベントの種類**: `フォーム送信時`
 
 ---
 
-## 開発・コンポーネント設計方針
+## 詳細設計
 
-本プロジェクトは TypeScript の `namespace` パターン（GAS 環境の単一グローバルスコープとの親和性を担保）およびインターフェース分離設計を採用しています。
-
-```mermaid
-classDiagram
-    class IConfigService {
-        <<interface>>
-        +getConfig() AppConfig
-    }
-    class ConfigService {
-        +getConfig() AppConfig
-    }
-    class IEmbedBuilder {
-        <<interface>>
-        +build(response) DiscordEmbed
-    }
-    class DiscordEmbedBuilder {
-        +build(response) DiscordEmbed
-    }
-    class INotifier {
-        <<interface>>
-        +send(payload) void
-    }
-    class DiscordWebhookClient {
-        +send(payload) void
-    }
-
-    IConfigService <|.. ConfigService
-    IEmbedBuilder <|.. DiscordEmbedBuilder
-    INotifier <|.. DiscordWebhookClient
-```
+コンポーネント構成やクラス図などの詳細設計については [ARCHITECTURE.md](file:///d:/Dev/Ban-Appeal-Notifier/ARCHITECTURE.md) を参照してください。
