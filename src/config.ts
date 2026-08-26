@@ -52,6 +52,7 @@ namespace BanAppealNotifier {
 
   /**
    * 後方互換性のためのスタンドアロン関数
+   * @deprecated 代わりに {@link ConfigService} の `getConfig` メソッドを使用してください。
    */
   export function getConfig(): AppConfig {
     return new ConfigService().getConfig();

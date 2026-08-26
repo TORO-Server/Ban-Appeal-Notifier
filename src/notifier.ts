@@ -107,6 +107,7 @@ namespace BanAppealNotifier {
 
   /**
    * 後方互換性のためのクラスエイリアス
+   * @deprecated 代わりに {@link DiscordWebhookClient} を使用してください。
    */
   export const DiscordNotifier = DiscordWebhookClient;
 }
