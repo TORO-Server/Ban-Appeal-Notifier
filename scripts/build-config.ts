@@ -24,7 +24,7 @@ namespace BanAppealNotifier {
    * 環境変数設定オブジェクトを取得する
    */
   export function getEnvConfig(): AppConfig {
-    return ENV_CONFIG;
+    return BanAppealNotifier.ENV_CONFIG;
   }
 }
 `;
