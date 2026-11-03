@@ -89,4 +89,4 @@ npm run push
 
 ## 詳細設計
 
-コンポーネント構成やクラス図などの詳細設計については [ARCHITECTURE.md](file:///d:/Dev/Ban-Appeal-Notifier/ARCHITECTURE.md) を参照してください。
+コンポーネント構成やクラス図などの詳細設計については [ARCHITECTURE.md](ARCHITECTURE.md) を参照してください。
