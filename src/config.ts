@@ -5,6 +5,7 @@ namespace BanAppealNotifier {
   /**
    * アプリケーション設定管理サービス
    * .env より自動生成された ENV_CONFIG をデフォルトとし、PropertiesService の動的設定による上書きを提供する
+   * Webhook URL は PropertiesService からだけ読む
    */
   export class ConfigService implements IConfigService {
     /**
@@ -15,7 +16,7 @@ namespace BanAppealNotifier {
 
       try {
         const props = PropertiesService.getScriptProperties();
-        const webhookUrl = props.getProperty("DISCORD_WEBHOOK_URL") || defaultEnv.webhookUrl;
+        const webhookUrl = props.getProperty("DISCORD_WEBHOOK_URL") || "";
         const noneText = props.getProperty("NONE_TEXT") || defaultEnv.noneText;
 
         const rawColor = props.getProperty("EMBED_COLOR");
