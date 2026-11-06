@@ -49,9 +49,13 @@ cp .env.example .env
 ```
 
 `.env` の設定項目:
-- `DISCORD_WEBHOOK_URL`: Discord Webhook URL
 - `NONE_TEXT`: 未回答項目の代替テキスト (例: "なし")
 - `EMBED_COLOR`: Embed のカラーコード (10進数)
+
+### 3. Webhook URL の設定
+
+Discord Webhook URL は秘密なので、`.env` にもコードにも置きません (スクリプトのコードは、フォームの編集者全員が読めます)。
+Apps Script エディタの **プロジェクトの設定** > **スクリプト プロパティ** に `DISCORD_WEBHOOK_URL` として設定します。
 
 ---
 

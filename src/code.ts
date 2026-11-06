@@ -49,7 +49,8 @@ function getForms(e?: BanAppealNotifier.FormSubmitEvent | any): void {
       embeds,
     };
 
-    console.log("[BanAppealNotifier] Discord 送信データ構築完了:", JSON.stringify(payload));
+    // 回答の内容は個人情報を含みうるのでログに出さない
+    console.log(`[BanAppealNotifier] Discord 送信データ構築完了 (Embed ${embeds.length} 件)`);
 
     try {
       notifier.send(payload);

@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const webhookUrl: string = process.env.DISCORD_WEBHOOK_URL || "";
 const noneText: string = process.env.NONE_TEXT || "なし";
 const embedColor: number = parseInt(process.env.EMBED_COLOR || "8008641", 10);
 
@@ -13,9 +12,10 @@ const content: string = `/// <reference path="./types.ts" />
 namespace BanAppealNotifier {
   /**
    * .env ファイルからビルド時に自動生成された定数設定
+   * Webhook URL は秘密なので入れない (Script Properties の DISCORD_WEBHOOK_URL に置く)
    */
   export const ENV_CONFIG: AppConfig = {
-    webhookUrl: ${JSON.stringify(webhookUrl)},
+    webhookUrl: "",
     noneText: ${JSON.stringify(noneText)},
     embedColor: ${embedColor},
   };

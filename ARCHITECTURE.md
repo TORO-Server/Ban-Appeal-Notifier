@@ -45,7 +45,7 @@ classDiagram
 ```
 
 ### 1. IConfigService (`src/config.ts`)
-- 環境変数 (`.env` 経由の `src/env.ts`) および `PropertiesService` からの設定取得を担当。
+- 環境変数 (`.env` 経由の `src/env.ts`) および `PropertiesService` からの設定取得を担当。Webhook URL は秘密なので `PropertiesService` からだけ読む。
 
 ### 2. IEmbedBuilder (`src/builder.ts`)
 - Google フォームの回答データから Discord Webhook 用の Embed 構造体を構築。
