@@ -3,8 +3,8 @@
   "dependencies": {},
   "oauthScopes": [
     "https://www.googleapis.com/auth/forms.currentonly",
-    "https://www.googleapis.com/auth/forms",
-    "https://www.googleapis.com/auth/script.external_request"
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.scriptapp"
   ],
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8"
