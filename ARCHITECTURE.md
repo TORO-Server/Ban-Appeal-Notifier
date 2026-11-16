@@ -1,19 +1,19 @@
-# Ban Appeal Notifier アーキテクチャ仕様書
+# Ban Appeal Notifier の内部の作り
 
-本ドキュメントでは、Ban Appeal Notifier の内部設計、コンポーネント構成、および設計方針について記述します。
-
----
-
-## 設計方針
-
-本プロジェクトは Google Apps Script (GAS) 環境におけるメンテナンス性と型安全性を高めるため、以下の設計方針を採用しています。
-
-- **TypeScript パターン**: GAS の単一グローバルスコープと適合させるため `namespace` パターンを活用。
-- **インターフェース分離 (SOLID原則)**: 設定読み込み、Embed構築、通知送信の各責務をインターフェースとして分離。
+この文書は、Ban Appeal Notifier の内部の設計、部品の分け方、考え方を書きます。使い方は [README.md](README.md) にあります。
 
 ---
 
-## コンポーネント構成
+## 設計の考え方
+
+Google Apps Script (GAS) で、直しやすさと型の確かさを保つために、次の考え方で作っています。
+
+- **TypeScript の `namespace`**: GAS は全体で 1 つの名前の空間を共有するので、`namespace` でまとめて名前がぶつからないようにしています。
+- **役割ごとにインターフェースを分ける**: 設定の読み込み、Embed (Discord の整った投稿の形式) の組み立て、送信、再送用の保存、タイマーの管理を、別々のインターフェースにしています。
+
+---
+
+## 部品の構成
 
 ```mermaid
 classDiagram
@@ -26,9 +26,11 @@ classDiagram
     }
     class IEmbedBuilder {
         <<interface>>
+        +buildEmbeds(response) DiscordEmbed[]
         +build(response) DiscordEmbed
     }
     class DiscordEmbedBuilder {
+        +buildEmbeds(response) DiscordEmbed[]
         +build(response) DiscordEmbed
     }
     class INotifier {
@@ -38,17 +40,43 @@ classDiagram
     class DiscordWebhookClient {
         +send(payload) void
     }
+    class IQueueService {
+        <<interface>>
+        +enqueue(payload) PendingItem
+        +peekAll() PendingItem[]
+        +remove(id) void
+        +clear() void
+    }
+    class QueueService
+    class ITriggerManager {
+        <<interface>>
+        +ensureTimerTrigger(functionName, delayMinutes) void
+        +removeTimerTriggers(functionName) void
+    }
+    class TriggerManager
 
     IConfigService <|.. ConfigService
     IEmbedBuilder <|.. DiscordEmbedBuilder
     INotifier <|.. DiscordWebhookClient
+    IQueueService <|.. QueueService
+    ITriggerManager <|.. TriggerManager
 ```
 
 ### 1. IConfigService (`src/config.ts`)
-- 環境変数 (`.env` 経由の `src/env.ts`) および `PropertiesService` からの設定取得を担当。Webhook URL は秘密なので `PropertiesService` からだけ読む。
+- 設定を集めます。`.env` から作られる `src/env.ts` の値を既定とし、スクリプト プロパティ (`PropertiesService`) の値があればそちらを使います。Webhook の URL は秘密なので、スクリプト プロパティからだけ読みます。
 
 ### 2. IEmbedBuilder (`src/builder.ts`)
-- Google フォームの回答データから Discord Webhook 用の Embed 構造体を構築。
+- Google フォームの回答から、Discord に送る Embed を組み立てます。項目が多いときは、複数の Embed に分けます。
 
 ### 3. INotifier (`src/notifier.ts`)
-- Discord Webhook への HTTP リクエスト送信およびエラーハンドリングを担当。
+- Discord の Webhook へ送ります。失敗したときは、待ち時間を少しずつ延ばしながら、時間の上限まで送り直します。
+
+### 4. IQueueService (`src/queue.ts`)
+- 送れなかった通知を、スクリプト プロパティに保存します。保存できる大きさに上限があるので、分けて保存し、全体が大きくなりすぎたら古いものから捨てます。
+
+### 5. ITriggerManager (`src/trigger.ts`)
+- 再送のためのタイマーを、必要なときだけ作り、保存した通知がなくなったら消します。
+
+### 入口 (`src/code.ts`)
+- `getForms`: フォームの送信で呼ばれます。すぐに送り、失敗したら保存して、1 分後のタイマーを作ります。
+- `processPendingNotifications`: タイマーで呼ばれ、保存した通知を送り直します。
