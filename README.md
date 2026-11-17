@@ -37,7 +37,7 @@ cp .env.example .env
 
 `.clasp.json.example` をコピーして `.clasp.json` を作り、`scriptId` に自分の Apps Script の ID を入れます。このファイルは Git に入れません。
 
-### 4. Webhook の URL を設定する
+### 4. Webhook (他のサービスからの投稿を受け取る URL) を設定する
 
 Discord の Webhook の URL は秘密なので、`.env` にもコードにも書きません (スクリプトのコードは、フォームの編集者全員が読めます)。
 Apps Script エディタの **プロジェクトの設定** > **スクリプト プロパティ** に、`DISCORD_WEBHOOK_URL` という名前で設定します。
